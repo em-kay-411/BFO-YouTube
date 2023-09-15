@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    Hello
-</body>
-</html>
+Authentication works on JWT tokens using PassportJS library
+
+Signup requires the username, email, password and role to be entered.
+During login, local strategy is used for logging in and a JWT is generated and given out as a response.
+Need to look after how this JWT token can be taken retained accross routes.
+The token needs to be sent as a header to every request.
