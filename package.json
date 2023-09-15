@@ -9,9 +9,13 @@
   "author": "Mohit",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "express": "^4.18.2",
     "mongoose": "^7.5.1",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
     "validator": "^13.11.0"
   }
 }

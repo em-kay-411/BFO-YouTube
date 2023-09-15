@@ -6,20 +6,12 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: [true, 'Enter your name']
     },
-    channelName : {
-      type: String, 
-      required: [true, 'Enter the channel name']
-    },
     email: {
       type: String,
       required: [true, 'Please provide your email'],
       unique: true,
       lowercase: true,
       validate: [validator.isEmail, 'Please provide a valid email']
-    },
-    photo: {
-      type: String,
-      default: 'default.jpg'
     },
     role: {
       type: String,
