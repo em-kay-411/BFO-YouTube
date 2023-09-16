@@ -7,44 +7,41 @@ const bcrypt = require('bcrypt');
 const secretKey = 'emkayn';
 
 passport.use(
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const user = await User.findOne({ username });
+    new LocalStrategy(async (username, password, done) => {
+        try {
+            const user = await User.findOne({ username });
 
-      if (!user) {
-        return done(null, false, { message: 'Invalid username' });
-      }
+            if (!user) {
+                return done(null, false, { message: 'Invalid username' });
+            }
 
-      const isValidPassword = await bcrypt.compare(password, user.password);
+            const isValidPassword = await bcrypt.compare(password, user.password);
 
-      if (!isValidPassword) {
-        return done(null, false, { message: 'Invalid password' });
-      }
+            if (!isValidPassword) {
+                return done(null, false, { message: 'Invalid password' });
+            }
 
-      return done(null, user);
-    } catch (error) {
-      return done(error);
-    }
-  })
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    })
 );
 
 passport.use(
-  new JwtStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: secretKey,
-    },
-    (payload, done) => {
-      // payload is the data in the JWT token, typically the user's ID or username
-      // You can use this data to perform authorization checks
-      // Example: Check if the user has the 'manager' role
-      if(payload){
-        return done(null, payload);
-      } else{
-        return done(null, false);
-      }
-    }
-  )
+    new JwtStrategy(
+        {
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: secretKey,
+        },
+        (payload, done) => {
+            if (payload) {
+                return done(null, payload);
+            } else {
+                return done(null, false);
+            }
+        }
+    )
 );
 
 module.exports = passport;
