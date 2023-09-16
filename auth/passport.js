@@ -38,9 +38,9 @@ passport.use(
       // payload is the data in the JWT token, typically the user's ID or username
       // You can use this data to perform authorization checks
       // Example: Check if the user has the 'manager' role
-      if (payload.role === 'manager') {
+      if(payload){
         return done(null, payload);
-      } else {
+      } else{
         return done(null, false);
       }
     }

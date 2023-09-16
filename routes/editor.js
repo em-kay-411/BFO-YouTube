@@ -4,7 +4,7 @@ const passport = require('passport');
 const router = express.Router();
 
 // Middleware to authenticate the JWT token
-const authenticateManager = (req, res, next) => {
+const authenticateEditor = (req, res, next) => {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       return next(err);
@@ -13,7 +13,7 @@ const authenticateManager = (req, res, next) => {
       return res.status(401).json({ message: 'Authentication failed' });
     }
 
-    if(user.role === 'editor'){
+    if(user.role === 'manager'){
         return res.status(500).json({ message: 'Forbidden Access'});
     }
     
@@ -23,8 +23,8 @@ const authenticateManager = (req, res, next) => {
   })(req, res, next);
 };
 
-router.get('/dashboard', authenticateManager, (req, res) => {
-  res.json({ message: 'You have access to the manager dashboard.' });
+router.get('/dashboard', authenticateEditor, (req, res) => {
+  res.json({ message: 'You have access to the editor dashboard.' });
 });
 
 module.exports = router;
