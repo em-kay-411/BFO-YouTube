@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
-const secretKey = 'emkayn';
+const createError = require('../utils/error.js');
 
 // Registration route
 router.post('/register', async (req, res) => {
@@ -30,21 +29,23 @@ router.post('/register', async (req, res) => {
 });
 
 // Login route
-router.post('/login', (req, res, next) => {
-    passport.authenticate('local', { session: false }, (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
-        if (!user) {
-            return res.status(401).json({ message: 'Authentication failed' });
-        }
+router.post('/login', async (req, res, next) => {
+    const user = await User.findOne({username : req.body.username});
+    if(!user){
+        return res.status(400).json({ message: 'User does not exist' });
+    }
 
-        const token = jwt.sign({ username: user.username, role: user.role }, secretKey, {
-            expiresIn: '1h', // Token expiration time
-        });
+    const isPassword = await bcrypt.compare(req.body.password, user.password);
 
-        res.json({ token });
-    })(req, res, next);
+    if(!isPassword){
+        return res.status(400).json({ message: 'Wrong Password' });
+    }
+
+    const token = jwt.sign({
+        user: user
+    }, process.env.JWT_SECRET);
+
+    res.cookie('access_token', token, { httpOnly: true }).status(200).json({ message : 'Login successful' , token});
 });
 
 module.exports = router;
