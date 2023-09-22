@@ -15,7 +15,6 @@ const projectSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'File'
             }],
-        required: true
     },
     editors: [{
         type: mongoose.Schema.Types.ObjectId,

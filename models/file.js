@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 
 const fileSchema =new mongoose.Schema({
-    projectId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project'
+    project:{
+        type: mongoose.Schema.ObjectId,
+        ref: 'Project',
+        required: true
     },
     filename: {
         type: String
     },
-    s3Key: {
+    s3Url: {
         type: String
     }
 });

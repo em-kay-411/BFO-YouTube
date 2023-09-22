@@ -23,14 +23,6 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide a password'],
     minlength: 8
   },
-  associatedProjects: {
-    type:
-      [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Project'
-      }],
-    default: [],
-  },
 });
 
 

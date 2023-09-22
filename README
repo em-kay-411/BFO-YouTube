@@ -1,4 +1,4 @@
-Authentication works on JWT tokens using PassportJS library
+Authentication works on JWT tokens 
 
 Signup requires the username, email, password and role to be entered.
 During login, local strategy is used for logging in and a JWT is generated and given out as a response.
