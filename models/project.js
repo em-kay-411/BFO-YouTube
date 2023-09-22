@@ -16,10 +16,13 @@ const projectSchema = new mongoose.Schema({
                 ref: 'File'
             }],
     },
-    editors: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
+    editors: {
+        type:
+            [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }],
+    },
     deadline: {
         type: Date,
     }
