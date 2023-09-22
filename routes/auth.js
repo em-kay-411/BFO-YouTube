@@ -42,10 +42,12 @@ router.post('/login', async (req, res, next) => {
     }
 
     const token = jwt.sign({
-        user: user
+        id: user.id,
+        username: user.username,
+        role : user.role
     }, process.env.JWT_SECRET);
 
-    res.cookie('access_token', token, { httpOnly: true }).status(200).json({ message : 'Login successful' , token});
+    res.cookie('access_token', token, { httpOnly: true, noTimeStamp: true}).status(200).json({ message : 'Login successful' , token});
 });
 
 module.exports = router;

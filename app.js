@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
-const authRoutes = require('./routes/auth');
-const managerRoutes = require('./routes/manager');
-const editorRoutes = require('./routes/editor');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const authRoutes = require('./routes/auth');
+const managerRoutes = require('./routes/manager');
+const editorRoutes = require('./routes/editor');
 
 dotenv.config();
 
