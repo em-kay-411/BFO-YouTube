@@ -9,7 +9,7 @@ const fileSchema =new mongoose.Schema({
     filename: {
         type: String
     },
-    s3Url: {
+    s3url: {
         type: String
     }
 });
