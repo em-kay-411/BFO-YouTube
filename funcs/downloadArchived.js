@@ -1,7 +1,7 @@
 const s3 = require('./s3client.js');
 const archiver = require('archiver');
 
-async function downloadArchived(s3FileUrls) {
+async function downloadArchived(s3FileUrls, res) {
     try {
         const archive = archiver('zip'); // Create a ZIP archive
 
@@ -18,7 +18,10 @@ async function downloadArchived(s3FileUrls) {
             const bucketName = urlParts[2];
             const key = urlParts.slice(3).join('/');
 
-            const s3Response = await s3.getObject({ Bucket: process.env.S3_BUCKET, Key: key }).promise();
+            // To convert %20 to spaces
+            const decodedKey = decodeURIComponent(key);
+
+            const s3Response = await s3.getObject({ Bucket: process.env.S3_BUCKET, Key: decodedKey }).promise();
             const fileName = key.split('/').pop(); // Extract the filename from the S3 key
 
             archive.append(s3Response.Body, { name: fileName });
@@ -30,3 +33,5 @@ async function downloadArchived(s3FileUrls) {
         throw error;
     }
 }
+
+module.exports = downloadArchived;

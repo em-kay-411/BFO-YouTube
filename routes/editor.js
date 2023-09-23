@@ -3,13 +3,10 @@ const verifyToken = require('../utils/verifyToken.js');
 const Project = require('../models/project.js');
 const Submission = require('../models/submission.js');
 const File = require('../models/file.js');
-const User = require('../models/user.js');
 const router = express.Router();
 const upload = require('../funcs/uploadSubmission.js');
 const downloadFile = require('../funcs/donwloadFile.js');
-const path = require('path');
-const stream = require('stream');
-const s3 = require('../funcs/s3client.js');
+const downloadArchived = require('../funcs/downloadArchived.js');
 
 
 // Middleware to authenticate the JWT token
@@ -98,15 +95,21 @@ router.post('/submit/:id', verifyEditor, upload.array('files', 5), async (req, r
 // Router to download the entire project data archived using projectID
 router.get('/downloadProject/:id', verifyEditor, async (req, res) => {
     try {
-        const file = await File.findOne({ _id: req.params.id });
-        const project = await Project.findOne({ _id: file.project });
+        const project = await Project.findOne({ _id: req.params.id });
 
         if (!project.editors.includes(req.user.id)) {
             return res.status(403).json({ message: 'You are not allowed to download this content' });
         }
 
+        const files = project.files;
+        let fileURLS = [];
 
+        for(const file of files){
+            const doc = await File.findOne({_id: file});
+            fileURLS.push(doc.s3url);
+        }
 
+        await downloadArchived(fileURLS, res);
     } catch (err){
         res.status(500).json({message : 'Internal Server Error'});
     }

@@ -8,6 +8,7 @@ async function downloadFile(s3FileUrl, res) {
         const bucketName = urlParts[2];
         const key = urlParts.slice(3).join('/');
 
+        // To convert %20 to spaces
         const decodedKey = decodeURIComponent(key);
 
         const s3Response = await s3.getObject({ Bucket: process.env.S3_BUCKET, Key: decodedKey }).promise();
