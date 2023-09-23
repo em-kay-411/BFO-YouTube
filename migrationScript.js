@@ -11,7 +11,7 @@ async function updateDocs() {
 
         for (const doc of documentsToUpdate) {
             // Update the document according to your new schema
-            doc.submissions = []; // You can set a default value or compute it as needed
+            doc.submissions = []; 
             await doc.save();
             console.log(`Updated ${doc._id}`);
         }
