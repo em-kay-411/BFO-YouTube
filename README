@@ -40,3 +40,6 @@ Algorithm -->
     8.  Simultaneously store these file data objects in an array
     9.  Now assign the project.files to be file IDs of all the files associated with the project
     10. Save the project.
+
+The same above Algorithm is used for submitting rendered projects for editors. The files have to be passed 
+as form-data

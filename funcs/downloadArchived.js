@@ -21,7 +21,7 @@ async function downloadArchived(s3FileUrls, res) {
             // To convert %20 to spaces
             const decodedKey = decodeURIComponent(key);
 
-            const s3Response = await s3.getObject({ Bucket: process.env.S3_BUCKET, Key: decodedKey }).promise();
+            const s3Response = await s3.getObject({ Bucket: process.env.FILE_BUCKET, Key: decodedKey }).promise();
             const fileName = key.split('/').pop(); // Extract the filename from the S3 key
 
             archive.append(s3Response.Body, { name: fileName });

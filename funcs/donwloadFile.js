@@ -11,7 +11,7 @@ async function downloadFile(s3FileUrl, res) {
         // To convert %20 to spaces
         const decodedKey = decodeURIComponent(key);
 
-        const s3Response = await s3.getObject({ Bucket: process.env.S3_BUCKET, Key: decodedKey }).promise();
+        const s3Response = await s3.getObject({ Bucket: process.env.FILE_BUCKET, Key: decodedKey }).promise();
 
         // Extract the file extension from the decoded key
         const fileExtension = path.extname(decodedKey).slice(1);
