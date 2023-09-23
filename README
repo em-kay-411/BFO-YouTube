@@ -4,13 +4,13 @@ Signup requires the username, email, password and role to be entered.
 During login a JWT cookie is sent to the client which is further used everywhere. This cookie is not visible to the client as it is httpOnly
 
 Database Schemas
-File --->
+File ---> All project files
     Contains 3 fields - 
     1. Project ID - The project to which it is associated to
     2. s3URL - URL from S3 Bucket
     3. filename - Name of the file
 
-Project --->
+Project ---> Projects
     Contains 5 fields
     1. Name - Name of the project
     2. Manager - ID of the manager of the project
@@ -18,14 +18,27 @@ Project --->
     4. Editors - Array of editor ids assigned to the project
     5. Deadline - Project Deadline
 
-User --->
+User ---> All users 
     Contains 4 fields
     1. Username : Unique username
     2. Email : Email ID of the user
     3. Role : Role of the user. Either a manager or an editor
     4. Password : Password of the user account
 
-upload.js --> Upload middleware of multer is configured to upload to s3
+Submission ---> Used for only the submitted project files by editors
+    Contains 3 fields - 
+    1. Project ID - The project to which it is associated to
+    2. s3URL - URL from S3 Bucket
+    3. filename - Name of the file
+
+Storages 
+S3_BUCKET = filebuck --> To store all the files of the project
+VIDEO_BUCKET = vidbuck --> To store all the rendered projects submitted by the editors
+
+upload.js --> Upload middleware of multer is configured to upload to files s3
+uploadSubmission.js --> Upload middleware of multer is configured to upload to video s3
+Multer is a library used to take the input multiprat/form-data of files and upload it on to the server
+or AWS S3 in this case.
 
 `/createProject` route uses the multer-s3 library to upload files to S3. 
 Algorithm -->
