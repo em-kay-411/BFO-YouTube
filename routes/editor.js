@@ -37,6 +37,9 @@ router.get('/projects', verifyEditor, async (req, res) => {
 router.get('/projects/:id', verifyEditor, async(req, res) => {
     try{
         const project = await Project.findOne({ _id : req.params.id });
+        if(!project.editors.includes(req.params.id)){
+            return res.status(403).json({message : 'You are not authorised to access this project'});
+        }
         if(!project){
             return res.status(403).json({message : 'No such project found'});
         }
@@ -56,6 +59,9 @@ router.get('/projects/:id', verifyEditor, async(req, res) => {
 router.post('/submit/:id', verifyEditor, upload.array('files', 5), async (req, res) => {
     try {
         const project = await Project.findOne({_id : req.params.id});
+        if(!project.editors.includes(req.params.id)){
+            return res.status(403).json({message : 'You are not allowed to submit to this project'});
+        }
         const submissionsArray = [];
 
         for (const file of req.files) {
