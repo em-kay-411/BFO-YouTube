@@ -21,6 +21,13 @@ const projectSchema = new mongoose.Schema({
                 ref: 'File'
             }],
     },
+    submissions: {
+        type:
+            [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'File'
+            }],
+    },
     editors: {
         type:
             [{

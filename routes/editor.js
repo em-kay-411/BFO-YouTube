@@ -1,8 +1,10 @@
 const express = require('express');
 const verifyToken = require('../utils/verifyToken.js');
 const Project = require('../models/project.js');
+const Submission = require('../models/submission.js');
 const User = require('../models/user.js');
 const router = express.Router();
+const upload = require('../funcs/uploadSubmission.js');
 
 // Middleware to authenticate the JWT token
 const verifyEditor = (req, res, next) => {
@@ -51,8 +53,33 @@ router.get('/projects/:id', verifyEditor, async(req, res) => {
     }
 });
 
-router.post('/projects/:id', verifyEditor, async(req, res) => {
-    
+router.post('/submit/:id', verifyEditor, upload.array('files', 5), async (req, res) => {
+    try {
+        const project = await Project.findOne({_id : req.params.id});
+        const submissionsArray = [];
+
+        for (const file of req.files) {
+            const newSubmssion = new Submission({
+                project: req.params.id,
+                s3url: file.location,
+                filename: file.originalname,
+            });
+            
+            // Save file information to MongoDB
+            await newSubmssion.save();
+
+            submissionsArray.push(newSubmssion);
+        }
+
+        project.submissions = submissionsArray.map((fileData) => fileData._id);
+
+        await project.save();
+
+        res.status(201).json({ message: 'Submitted Successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 module.exports = router;
