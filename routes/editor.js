@@ -1,5 +1,5 @@
 const express = require('express');
-const verifyToken = require('../utils/verifyToken.js');
+const verifyToken = require('../funcs/verifyToken.js');
 const Project = require('../models/project.js');
 const Submission = require('../models/submission.js');
 const File = require('../models/file.js');
