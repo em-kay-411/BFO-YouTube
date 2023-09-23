@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth');
 const managerRoutes = require('./routes/manager');
@@ -15,7 +14,6 @@ mongoose.connect('mongodb://localhost:27017/youtuber', {
     useUnifiedTopology: true,
 });
 
-app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
