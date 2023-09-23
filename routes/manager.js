@@ -74,6 +74,25 @@ router.get('/projects', verifyManager, async (req, res) => {
     } catch (err) {
         res.status(500).json(err);
     }
-})
+});
+
+// Project details
+router.get('/projects/:id', verifyManager, async(req, res) => {
+    try{
+        const project = await Project.findOne({ _id : req.params.id });
+        if(!project){
+            res.status(403).json({message : 'No such project found'});
+        }
+        
+        // We need not to check the type of the ids. it will just check the ASCII value and go on.
+        if(project.manager != req.user.id){
+            res.status(403).json({ message : 'Your are not authorised to access this' });
+        }
+
+        res.status(500).json({ project });
+    } catch(err){
+        res.status(500).json(err);
+    }
+});
 
 module.exports = router;
