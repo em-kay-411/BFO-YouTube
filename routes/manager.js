@@ -54,6 +54,7 @@ router.post('/createProject', verifyManager, upload.array('files', 15), async (r
         }
 
         project.files = fileDataArray.map((fileData) => fileData._id);
+
         await project.save();
 
         res.status(201).json({ message: 'Project created successfully' });
@@ -81,17 +82,18 @@ router.get('/projects/:id', verifyManager, async(req, res) => {
     try{
         const project = await Project.findOne({ _id : req.params.id });
         if(!project){
-            res.status(403).json({message : 'No such project found'});
+            return res.status(403).json({message : 'No such project found'});
         }
         
         // We need not to check the type of the ids. it will just check the ASCII value and go on.
         if(project.manager != req.user.id){
-            res.status(403).json({ message : 'Your are not authorised to access this' });
+            return res.status(403).json({ message : 'Your are not authorised to access this' });
         }
 
-        res.status(500).json({ project });
+        res.status(200).json({ project });
     } catch(err){
-        res.status(500).json(err);
+        console.error(err);
+        res.status(500).json('Internal Server Error');
     }
 });
 
