@@ -51,7 +51,7 @@ router.get('/projects/:id', verifyEditor, async(req, res) => {
     }
 });
 
-router.get('/projects/:id', verifyEditor, async(req, res) => {
+router.post('/projects/:id', verifyEditor, async(req, res) => {
     
 });
 
