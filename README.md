@@ -32,11 +32,12 @@ During login a JWT cookie is sent to the client which is further used everywhere
     3. filename - Name of the file
 
 # Storages 
-`S3_BUCKET = filebuck` --> To store all the files of the project
-`VIDEO_BUCKET = vidbuck` --> To store all the rendered projects submitted by the editors
+`S3_BUCKET = filebuck` --> To store all the files of the project  
+`VIDEO_BUCKET = vidbuck` --> To store all the rendered projects submitted by the editors  
 
-`upload.js` --> Upload middleware of multer is configured to upload to files s3
-`uploadSubmission.js` --> Upload middleware of multer is configured to upload to video s3
+# Special Middlewares
+`upload.js` --> Upload middleware of multer is configured to upload to files s3  
+`uploadSubmission.js` --> Upload middleware of multer is configured to upload to video s3  
 Multer is a library used to take the input multiprat/form-data of files and upload it on to the server
 or AWS S3 in this case.
 
