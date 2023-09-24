@@ -32,28 +32,28 @@ During login a JWT cookie is sent to the client which is further used everywhere
     3. filename - Name of the file
 
 # Storages 
-S3_BUCKET = filebuck --> To store all the files of the project
-VIDEO_BUCKET = vidbuck --> To store all the rendered projects submitted by the editors
+`S3_BUCKET = filebuck` --> To store all the files of the project
+`VIDEO_BUCKET = vidbuck` --> To store all the rendered projects submitted by the editors
 
-upload.js --> Upload middleware of multer is configured to upload to files s3
-uploadSubmission.js --> Upload middleware of multer is configured to upload to video s3
+`upload.js` --> Upload middleware of multer is configured to upload to files s3
+`uploadSubmission.js` --> Upload middleware of multer is configured to upload to video s3
 Multer is a library used to take the input multiprat/form-data of files and upload it on to the server
 or AWS S3 in this case.
 
 # Route Handlers
 `/createProject` route uses the multer-s3 library to upload files to S3. 
 Algorithm -->
-    1.  The client will submit a form that will consist of project name, deadline, files and editors
-    2.  A new project model entry will be instantiated and project name, deadline, editors and 
-        managerid will be assigned
-    3.  This entry is saved into the MongoDB database
-    4.  Using the multer-s3 middleware we have already uploaded the files to S3 when the route was called
-    5.  req.files will contain all the files data after uploading.
-    6.  req.files is enhanced by the upload middleware of multer-s3
-    7.  For every file, create a new file instance, set values and upload it to the MongoDB database
-    8.  Simultaneously store these file data objects in an array
-    9.  Now assign the project.files to be file IDs of all the files associated with the project
-    10. Save the project.
+    1.  The client will submit a form that will consist of project name, deadline, files and editors  
+    2.  A new project model entry will be instantiated and project name, deadline, editors and   
+        managerid will be assigned  
+    3.  This entry is saved into the MongoDB database  
+    4.  Using the multer-s3 middleware we have already uploaded the files to S3 when the route was called  
+    5.  req.files will contain all the files data after uploading.  
+    6.  req.files is enhanced by the upload middleware of multer-s3  
+    7.  For every file, create a new file instance, set values and upload it to the MongoDB database  
+    8.  Simultaneously store these file data objects in an array  
+    9.  Now assign the project.files to be file IDs of all the files associated with the project  
+    10. Save the project.  
 
 The same above Algorithm is used for submitting rendered projects for editors. The files have to be passed 
 as form-data
