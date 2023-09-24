@@ -42,10 +42,9 @@ or AWS S3 in this case.
 
 # Route Handlers
 `/createProject` route uses the multer-s3 library to upload files to S3. 
-Algorithm -->
+##### Algorithm -->  
     1.  The client will submit a form that will consist of project name, deadline, files and editors  
-    2.  A new project model entry will be instantiated and project name, deadline, editors and   
-        managerid will be assigned  
+    2.  A new project model entry will be instantiated and project name, deadline, editors and managerid will be assigned  
     3.  This entry is saved into the MongoDB database  
     4.  Using the multer-s3 middleware we have already uploaded the files to S3 when the route was called  
     5.  req.files will contain all the files data after uploading.  
