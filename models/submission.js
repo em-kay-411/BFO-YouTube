@@ -31,7 +31,7 @@ const submssionSchema =new mongoose.Schema({
         type : String
     },
     isForKids : {
-        type : Boolean
+        type : String
     },
     cards: {
         type : [{

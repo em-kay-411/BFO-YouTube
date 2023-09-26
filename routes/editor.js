@@ -40,7 +40,7 @@ router.get('/projects', verifyEditor, async (req, res) => {
 router.get('/projects/:id', verifyEditor, async (req, res) => {
     try {
         const project = await Project.findOne({ _id: req.params.id });
-        if (!project.editors.includes(req.params.id)) {
+        if (!project.editors.includes(req.user.id)) {
             return res.status(403).json({ message: 'You are not authorised to access this project' });
         }
         if (!project) {
@@ -60,25 +60,33 @@ router.get('/projects/:id', verifyEditor, async (req, res) => {
 });
 
 // Router to submit the project
-router.post('/submit/:id', verifyEditor, upload.single('file'), upload.single('thumbnail'), upload.single('subtitles'), async (req, res) => {
+router.post('/submit/:id', verifyEditor, upload.fields([{name : 'file', maxCount : 1}, {name : 'thumbnail', maxCount : 1}, {name : 'subtitles', maxCount : 1}]), async (req, res) => {
     try {
         const project = await Project.findOne({ _id: req.params.id });
-        if (!project.editors.includes(req.params.id)) {
+        if(!project){
+            return res.status(403).json({ message : 'Project not found'});
+        }
+        if (!project.editors.includes(req.user.id)) {
             return res.status(403).json({ message: 'You are not allowed to submit to this project' });
+        }
+
+        let cards = req.body.cards;
+        if (typeof cards === 'string') {
+            cards = JSON.parse(cards);
         }
         
         const newSubmission = new Submission({
             project: req.params.id,
-            s3url: req.file.location,
-            filename: req.file.originalname,
-            thumbnail_url : req.thumbnail.location,
-            subtitles_url : req.subtitles.location,
-            video_title : req.video_title,
-            video_description : req.video_description,
-            privacy : req.privacy,
-            defaultLanguage : req.defaultLanguage,
-            isForKids : req.isForKids,
-            cards : req.cards
+            s3url: req.files.file.location,
+            filename: req.files.file.originalname,
+            thumbnail_url : req.files.thumbnail.location,
+            subtitles_url : req.files.subtitles.location,
+            video_title : req.body.video_title,
+            video_description : req.body.video_description,
+            privacy : req.body.privacy,
+            defaultLanguage : req.body.defaultLanguage,
+            isForKids : req.body.isForKids,
+            cards : cards
         });
 
         // Save submission information to MongoDB
