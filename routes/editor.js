@@ -70,23 +70,24 @@ router.post('/submit/:id', verifyEditor, upload.fields([{name : 'file', maxCount
             return res.status(403).json({ message: 'You are not allowed to submit to this project' });
         }
 
-        let cards = req.body.cards;
-        if (typeof cards === 'string') {
-            cards = JSON.parse(cards);
-        }
+        // Not working yet
+        // let cards = req.body.cards;
+        // if (typeof cards === 'string') {
+        //     cards = JSON.parse(cards);
+        // }
         
         const newSubmission = new Submission({
             project: req.params.id,
-            s3url: req.files.file.location,
-            filename: req.files.file.originalname,
-            thumbnail_url : req.files.thumbnail.location,
-            subtitles_url : req.files.subtitles.location,
+            s3url: req.files.file[0].location,
+            filename: req.files.file[0].originalname,
+            thumbnail_url : req.files.thumbnail[0].location,
+            subtitles_url : req.files.subtitles[0].location,
             video_title : req.body.video_title,
             video_description : req.body.video_description,
             privacy : req.body.privacy,
             defaultLanguage : req.body.defaultLanguage,
             isForKids : req.body.isForKids,
-            cards : cards
+            // cards : cards   // Not working yet
         });
 
         // Save submission information to MongoDB
