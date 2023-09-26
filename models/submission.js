@@ -11,6 +11,33 @@ const submssionSchema =new mongoose.Schema({
     },
     s3url: {
         type: String
+    },
+    thumbnail_url:{
+        type : String
+    },
+    subtitles_url : {
+        type : String
+    },
+    video_title : {
+        type :String
+    },
+    video_description : {
+        type : String
+    },
+    privacy : {
+        type: String
+    },
+    defaultLanguage : {
+        type : String
+    },
+    isForKids : {
+        type : Boolean
+    },
+    cards: {
+        type : [{
+            type : mongoose.Schema.ObjectId,
+            ref : 'Card'
+        }]
     }
 });
 

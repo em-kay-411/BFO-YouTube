@@ -25,7 +25,7 @@ const projectSchema = new mongoose.Schema({
         type:
             [{
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'File'
+                ref: 'Submission'
             }],
     },
     editors: {

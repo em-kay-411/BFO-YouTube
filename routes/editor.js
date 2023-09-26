@@ -60,28 +60,31 @@ router.get('/projects/:id', verifyEditor, async (req, res) => {
 });
 
 // Router to submit the project
-router.post('/submit/:id', verifyEditor, upload.array('files', 5), async (req, res) => {
+router.post('/submit/:id', verifyEditor, upload.single('file'), upload.single('thumbnail'), upload.single('subtitles'), async (req, res) => {
     try {
         const project = await Project.findOne({ _id: req.params.id });
         if (!project.editors.includes(req.params.id)) {
             return res.status(403).json({ message: 'You are not allowed to submit to this project' });
         }
-        const submissionsArray = [];
+        
+        const newSubmission = new Submission({
+            project: req.params.id,
+            s3url: req.file.location,
+            filename: req.file.originalname,
+            thumbnail_url : req.thumbnail.location,
+            subtitles_url : req.subtitles.location,
+            video_title : req.video_title,
+            video_description : req.video_description,
+            privacy : req.privacy,
+            defaultLanguage : req.defaultLanguage,
+            isForKids : req.isForKids,
+            cards : req.cards
+        });
 
-        for (const file of req.files) {
-            const newSubmssion = new Submission({
-                project: req.params.id,
-                s3url: file.location,
-                filename: file.originalname,
-            });
+        // Save submission information to MongoDB
+        await newSubmission.save();
 
-            // Save file information to MongoDB
-            await newSubmssion.save();
-
-            submissionsArray.push(newSubmssion);
-        }
-
-        project.submissions = submissionsArray.map((fileData) => fileData._id);
+        project.submissions.push(newSubmission);
 
         await project.save();
 
@@ -104,14 +107,14 @@ router.get('/downloadProject/:id', verifyEditor, async (req, res) => {
         const files = project.files;
         let fileURLS = [];
 
-        for(const file of files){
-            const doc = await File.findOne({_id: file});
+        for (const file of files) {
+            const doc = await File.findOne({ _id: file });
             fileURLS.push(doc.s3url);
         }
 
         await downloadArchived(fileURLS, res);
-    } catch (err){
-        res.status(500).json({message : 'Internal Server Error'});
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
@@ -131,10 +134,10 @@ router.get('/download/:id', verifyEditor, async (req, res) => {
         }
 
         await downloadFile(s3FileUrl, res);
-    } catch (err){
-        res.status(500).json({message : 'Internal Server Error'});
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-    
+
 })
 
 module.exports = router;
