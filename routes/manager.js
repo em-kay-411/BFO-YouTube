@@ -97,4 +97,24 @@ router.get('/projects/:id', verifyManager, async(req, res) => {
     }
 });
 
+router.post('/submission/:id', verifyManager, async(req, res) => {
+    try{
+        const submission = await submission.findOne({ _id : req.params.id });
+        const project = submission.project;
+
+        if(!project){
+            return res.status(403).json({ message : 'No such project found'});
+        }
+
+        if(project.manager != req.user.id){
+            return res.status(403).json({ message : 'You are not authorised for this action'});
+        }
+
+
+    } catch(error){
+        console.error(error);
+        res.status(500).json({message : 'Internal Server Error'});
+    }
+})
+
 module.exports = router;
