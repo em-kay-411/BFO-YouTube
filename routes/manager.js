@@ -97,7 +97,8 @@ router.get('/projects/:id', verifyManager, async(req, res) => {
     }
 });
 
-router.post('/submission/:id', verifyManager, async(req, res) => {
+// Approve submision to send it to YouTube
+router.post('/approveSubmission/:id', verifyManager, async(req, res) => {
     try{
         const submission = await submission.findOne({ _id : req.params.id });
         const project = submission.project;
@@ -110,7 +111,7 @@ router.post('/submission/:id', verifyManager, async(req, res) => {
             return res.status(403).json({ message : 'You are not authorised for this action'});
         }
 
-
+        finalUpload(submission, project);
     } catch(error){
         console.error(error);
         res.status(500).json({message : 'Internal Server Error'});

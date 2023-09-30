@@ -80,8 +80,7 @@ router.post('/submit/:id', verifyEditor, upload.fields([{name : 'file', maxCount
             project: req.params.id,
             s3url: req.files.file[0].location,
             filename: req.files.file[0].originalname,
-            thumbnail_url : req.files.thumbnail[0].location,
-            subtitles_url : req.files.subtitles[0].location,
+            thumbnail_url : req.files.thumbnail[0].location,            
             video_title : req.body.video_title,
             video_description : req.body.video_description,
             privacy : req.body.privacy,
@@ -89,6 +88,10 @@ router.post('/submit/:id', verifyEditor, upload.fields([{name : 'file', maxCount
             isForKids : req.body.isForKids,
             // cards : cards   // Not working yet
         });
+
+        if(!req.files.subtitles[0].location){
+            newSubmission.subtitles_url = req.files.subtitles[0].location
+        }
 
         // Save submission information to MongoDB
         await newSubmission.save();
