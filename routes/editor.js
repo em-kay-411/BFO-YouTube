@@ -89,7 +89,7 @@ router.post('/submit/:id', verifyEditor, upload.fields([{name : 'file', maxCount
             // cards : cards   // Not working yet
         });
 
-        if(!req.files.subtitles[0].location){
+        if(req.files.subtitles){
             newSubmission.subtitles_url = req.files.subtitles[0].location
         }
 
