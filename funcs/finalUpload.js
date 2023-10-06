@@ -1,32 +1,40 @@
 const s3 = require('./s3client.js');
 const { google } = require('googleapis');
 
-const youtube = google.youtube({
-    version: 'v3',
-    auth: process.env.YOUTUBE_API_KEY,
-});
-
 async function getKey(url) {
     const urlParts = url.split('/');
     const key = urlParts.slice(3).join('/');
 
     // To convert %20 to spaces
-    const decodedKey = decodeURIComponent(key);
+    const decodedKey = decodeURIComponent(key.replace(/\+/g, ' '));
 
     return decodedKey;
 }
 
-async function finalUpload(submission, project) {
+async function finalUpload(submission, project, oauth2Client) {
     const s3Bucket = process.env.RENDERED_BUCKET;
 
-    const videoKey = getKey(submission.s3url);
-    const thumbnailKey = getKey(submission.thumbnail_url);
-    const subtitlesKey = getKey(submission.subtitles_url);
+    const videoKey = await getKey(submission.s3url);
+    let thumbnailKey;
+    if(submission.thumbnail_url){
+        thumbnailKey = await getKey(submission.thumbnail_url);
+    }
+
+    let subtitlesKey;
+    if(submission.subtitles_url){
+        subtitlesKey = await getKey(submission.subtitles_url);
+    }
 
     const videoObject = s3.getObject({ Bucket: s3Bucket, Key: videoKey }).promise();
-    const thumbnailObject = s3.getObject({ Bucket: s3Bucket, Key: thumbnailKey }).promise();
-    const subtitlesObject = s3.getObject({ Bucket: s3Bucket, Key: subtitlesKey }).promise();
+    let thumbnailObject;
+    if(thumbnailKey){
+        thumbnailObject = s3.getObject({ Bucket: s3Bucket, Key: thumbnailKey }).promise();
+    }
 
+    let subtitlesObject;
+    if(subtitlesKey){
+        subtitlesObject = s3.getObject({ Bucket: s3Bucket, Key: subtitlesKey }).promise();
+    }
     const videoSnippet = {
         title: submission.video_title,
         description: submission.video_description,
@@ -41,7 +49,13 @@ async function finalUpload(submission, project) {
         status: videoStatus,
     };
 
-    const youtubeResponse = youtube.videos.insert({
+    const youtube = google.youtube({
+        version: 'v3',
+        auth: oauth2Client,
+    });
+
+    const youtubeResponse = await youtube.videos.insert({
+        auth: oauth2Client,
         resource: videoMetadata,
         part: 'snippet,status,contentDetails',
         media: {
@@ -62,6 +76,7 @@ async function finalUpload(submission, project) {
 
     if (subtitlesObject) {
         youtube.captions.insert({
+            auth: oauth2Client,
             part: 'snippet',
             resource: {
                 snippet: {
@@ -79,7 +94,6 @@ async function finalUpload(submission, project) {
             },
         });
     }
-
 
     project.status = 'done';
 }

@@ -2,8 +2,14 @@ const express = require('express');
 const verifyToken = require('../funcs/verifyToken.js');
 const Project = require('../models/project.js');
 const File = require('../models/file.js');
+const Submission = require('../models/submission.js');
 const upload = require('../funcs/upload.js');
+const finalUpload = require('../funcs/finalUpload.js');
+const { google } = require('googleapis');
+const { OAuth2Client } = require('google-auth-library');
 const router = express.Router();
+
+// let oauth2Client;
 
 // Middleware to authenticate the JWT token
 const verifyManager = (req, res, next) => {
@@ -32,7 +38,7 @@ router.post('/createProject', verifyManager, upload.array('files', 15), async (r
         const project = new Project({
             name,
             manager,
-            editors : editorArray,
+            editors: editorArray,
             deadline,
         });
 
@@ -46,7 +52,7 @@ router.post('/createProject', verifyManager, upload.array('files', 15), async (r
                 s3url: file.location,
                 filename: file.originalname,
             });
-            
+
             // Save file information to MongoDB
             await newFile.save();
 
@@ -60,7 +66,7 @@ router.post('/createProject', verifyManager, upload.array('files', 15), async (r
         res.status(201).json({ message: 'Project created successfully' });
     } catch (error) {
         //Rollback
-        await Project.deleteOne({name: req.body.name});
+        await Project.deleteOne({ name: req.body.name });
         console.error(error);
         res.status(500).json({ error: 'Server error' });
     }
@@ -78,44 +84,90 @@ router.get('/projects', verifyManager, async (req, res) => {
 });
 
 // Project details
-router.get('/projects/:id', verifyManager, async(req, res) => {
-    try{
-        const project = await Project.findOne({ _id : req.params.id });
-        if(!project){
-            return res.status(403).json({message : 'No such project found'});
+router.get('/projects/:id', verifyManager, async (req, res) => {
+    try {
+        const project = await Project.findOne({ _id: req.params.id });
+        if (!project) {
+            return res.status(403).json({ message: 'No such project found' });
         }
-        
+
         // We need not to check the type of the ids. it will just check the ASCII value and go on.
-        if(project.manager != req.user.id){
-            return res.status(403).json({ message : 'Your are not authorised to access this' });
+        if (project.manager != req.user.id) {
+            return res.status(403).json({ message: 'Your are not authorised to access this' });
         }
 
         res.status(200).json({ project });
-    } catch(err){
+    } catch (err) {
         console.error(err);
         res.status(500).json('Internal Server Error');
     }
 });
 
 // Approve submision to send it to YouTube
-router.post('/approveSubmission/:id', verifyManager, async(req, res) => {
-    try{
-        const submission = await submission.findOne({ _id : req.params.id });
-        const project = submission.project;
+router.post('/approveSubmission/:id', verifyManager, async (req, res) => {
+    try {
 
-        if(!project){
-            return res.status(403).json({ message : 'No such project found'});
+        const submission = await Submission.findOne({ _id: req.params.id });
+        if(!submission){
+            return res.status(403).json({message : 'Error! Wrong submission ID.'})
         }
 
-        if(project.manager != req.user.id){
-            return res.status(403).json({ message : 'You are not authorised for this action'});
+        const project = await Project.findOne({ _id: submission.project });
+
+        if (!project) {
+            return res.status(403).json({ message: 'No such project found' });
         }
 
-        finalUpload(submission, project);
-    } catch(error){
+        if (project.manager != req.user.id) {
+            return res.status(403).json({ message: 'You are not authorised for this action' });
+        }
+
+        const oauth2Client = new OAuth2Client({
+            clientId: '87798573037-1qv6rd5n7jrvrge1v6ci51fa0u8cki6l.apps.googleusercontent.com',
+            clientSecret: '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',
+            redirectUri: 'http://localhost:3000/manager/approveSubmission/callback',
+        });
+
+        const authUrl = oauth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope: ['https://www.googleapis.com/auth/youtube.upload'],
+            state : req.params.id
+        });
+
+        console.log(authUrl);
+
+        res.redirect(authUrl);
+    } catch (error) {
         console.error(error);
-        res.status(500).json({message : 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-})
+});
+
+router.get('/approveSubmission/callback', verifyManager, async (req, res) => {
+    try {
+
+        const authorizationCode = req.query.code;
+        const state = req.query.state;
+
+        const submission = await Submission.findOne({ _id: state });
+        const project = await Project.findOne({ _id : submission.project });
+
+        const oauth2Client = new OAuth2Client({
+            clientId: '87798573037-1qv6rd5n7jrvrge1v6ci51fa0u8cki6l.apps.googleusercontent.com',
+            clientSecret: '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',
+            redirectUri: 'http://localhost:3000/manager/approveSubmission/callback',
+        });
+
+        const { tokens } = await oauth2Client.getToken(authorizationCode);
+
+        oauth2Client.setCredentials(tokens);
+        await finalUpload(submission, project, oauth2Client);
+    } catch (error) {
+        console.error('Authentication or upload error:', error);
+        res.status(500).send('Authentication or upload error.');
+    }
+});
+
+
 
 module.exports = router;
