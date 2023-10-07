@@ -25,15 +25,15 @@ async function finalUpload(submission, project, oauth2Client) {
         subtitlesKey = await getKey(submission.subtitles_url);
     }
 
-    const videoObject = await s3.getObject({ Bucket: s3Bucket, Key: videoKey })
+    const videoObject = await s3.getObject({ Bucket: s3Bucket, Key: videoKey }).promise();
     let thumbnailObject;
     if(thumbnailKey){
-        thumbnailObject = await s3.getObject({ Bucket: s3Bucket, Key: thumbnailKey })
+        thumbnailObject = await s3.getObject({ Bucket: s3Bucket, Key: thumbnailKey }).promise();
     }
 
     let subtitlesObject;
     if(subtitlesKey){
-        subtitlesObject = await s3.getObject({ Bucket: s3Bucket, Key: subtitlesKey })
+        subtitlesObject = await s3.getObject({ Bucket: s3Bucket, Key: subtitlesKey }).promise();
     }
     const videoSnippet = {
         title: submission.video_title,
