@@ -3,6 +3,7 @@ const verifyToken = require('../funcs/verifyToken.js');
 const Project = require('../models/project.js');
 const File = require('../models/file.js');
 const Submission = require('../models/submission.js');
+const User = require('../models/user.js');
 const upload = require('../funcs/upload.js');
 const finalUpload = require('../funcs/finalUpload.js');
 const { google } = require('googleapis');
@@ -151,6 +152,7 @@ router.get('/approveSubmission/callback', verifyManager, async (req, res) => {
 
         const submission = await Submission.findOne({ _id: state });
         const project = await Project.findOne({ _id : submission.project });
+        const manager = await User.findOne( { _id : req.user.id });
 
         const oauth2Client = new OAuth2Client({
             clientId: '87798573037-1qv6rd5n7jrvrge1v6ci51fa0u8cki6l.apps.googleusercontent.com',
@@ -158,9 +160,16 @@ router.get('/approveSubmission/callback', verifyManager, async (req, res) => {
             redirectUri: 'http://localhost:3000/manager/approveSubmission/callback',
         });
 
-        const { tokens } = await oauth2Client.getToken(authorizationCode);
+        try{
+            oauth2Client.setCredentials(JSON.parse(manager.token));
+        } catch(err){
+            const { tokens } = await oauth2Client.getToken(authorizationCode);
 
-        oauth2Client.setCredentials(tokens);
+            oauth2Client.setCredentials(tokens);
+            manager.token = JSON.stringify(tokens);
+            manager.save();
+        }
+
         await finalUpload(submission, project, oauth2Client);
     } catch (error) {
         console.error('Authentication or upload error:', error);

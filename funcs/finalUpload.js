@@ -54,6 +54,8 @@ async function finalUpload(submission, project, oauth2Client) {
         auth: oauth2Client,
     });
 
+    console.log(oauth2Client);
+
     const youtubeResponse = await youtube.videos.insert({
         auth: oauth2Client,
         resource: videoMetadata,
