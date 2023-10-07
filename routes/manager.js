@@ -129,15 +129,22 @@ router.post('/approveSubmission/:id', verifyManager, async (req, res) => {
             redirectUri: process.env.GOOGLE_REDIRECT_URI,
         });
 
-        const authUrl = oauth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube.force-ssl'],
-            state : req.params.id
-        });
-
-        console.log(authUrl);
-
-        res.redirect(authUrl);
+        try{
+            oauth2Client.setCredentials(JSON.parse(manager.token));
+            console.log("here");
+            await finalUpload(submission, project, oauth2Client);
+        } catch(err){
+            const authUrl = oauth2Client.generateAuthUrl({
+                access_type: 'offline',
+                scope: ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube.force-ssl'],
+                state : req.params.id
+            });
+    
+            console.log(authUrl);
+    
+            res.redirect(authUrl);
+        }
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
