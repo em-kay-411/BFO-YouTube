@@ -25,15 +25,15 @@ async function finalUpload(submission, project, oauth2Client) {
         subtitlesKey = await getKey(submission.subtitles_url);
     }
 
-    const videoObject = s3.getObject({ Bucket: s3Bucket, Key: videoKey }).promise();
+    const videoObject = await s3.getObject({ Bucket: s3Bucket, Key: videoKey })
     let thumbnailObject;
     if(thumbnailKey){
-        thumbnailObject = s3.getObject({ Bucket: s3Bucket, Key: thumbnailKey }).promise();
+        thumbnailObject = await s3.getObject({ Bucket: s3Bucket, Key: thumbnailKey })
     }
 
     let subtitlesObject;
     if(subtitlesKey){
-        subtitlesObject = s3.getObject({ Bucket: s3Bucket, Key: subtitlesKey }).promise();
+        subtitlesObject = await s3.getObject({ Bucket: s3Bucket, Key: subtitlesKey })
     }
     const videoSnippet = {
         title: submission.video_title,
@@ -54,50 +54,50 @@ async function finalUpload(submission, project, oauth2Client) {
         auth: oauth2Client,
     });
 
-    console.log(oauth2Client);
+    console.log(videoObject);
 
-    const youtubeResponse = await youtube.videos.insert({
-        auth: oauth2Client,
-        resource: videoMetadata,
-        part: 'snippet,status,contentDetails',
-        media: {
-            mimeType: 'video/*',
-            body: videoObject.Body,
-        },
-    });
+    // const youtubeResponse = await youtube.videos.insert({
+    //     auth: oauth2Client,
+    //     resource: videoMetadata,
+    //     part: 'snippet,status,contentDetails',
+    //     media: {
+    //         mimeType: 'video/*',
+    //         body: videoObject.Body,
+    //     },
+    // });
 
-    if (thumbnailObject) {
-        youtube.thumbnails.set({
-            videoId: youtubeResponse.data.id,
-            media: {
-                mimeType: 'image/jpeg',
-                body: thumbnailObject.Body,
-            },
-        });
-    }
+    // if (thumbnailObject) {
+    //     youtube.thumbnails.set({
+    //         videoId: youtubeResponse.data.id,
+    //         media: {
+    //             mimeType: 'image/jpeg',
+    //             body: thumbnailObject.Body,
+    //         },
+    //     });
+    // }
 
-    if (subtitlesObject) {
-        youtube.captions.insert({
-            auth: oauth2Client,
-            part: 'snippet',
-            resource: {
-                snippet: {
-                    videoId: youtubeResponse.data.id,
-                    language: 'en', // Set the language code for the subtitles
-                    name: 'English',
-                    isDraft: false,
-                    isAutoSynced: true,
-                    status: 'serving',
-                },
-            },
-            media: {
-                mimeType: 'application/x-subrip',
-                body: subtitlesObject.Body,
-            },
-        });
-    }
+    // if (subtitlesObject) {
+    //     youtube.captions.insert({
+    //         auth: oauth2Client,
+    //         part: 'snippet',
+    //         resource: {
+    //             snippet: {
+    //                 videoId: youtubeResponse.data.id,
+    //                 language: 'en', // Set the language code for the subtitles
+    //                 name: 'English',
+    //                 isDraft: false,
+    //                 isAutoSynced: true,
+    //                 status: 'serving',
+    //             },
+    //         },
+    //         media: {
+    //             mimeType: 'application/x-subrip',
+    //             body: subtitlesObject.Body,
+    //         },
+    //     });
+    // }
 
-    project.status = 'done';
+    // project.status = 'done';
 }
 
 module.exports = finalUpload;

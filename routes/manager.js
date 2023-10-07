@@ -160,15 +160,15 @@ router.get('/approveSubmission/callback', verifyManager, async (req, res) => {
             redirectUri: 'http://localhost:3000/manager/approveSubmission/callback',
         });
 
-        try{
-            oauth2Client.setCredentials(JSON.parse(manager.token));
-        } catch(err){
+        // try{
+        //     oauth2Client.setCredentials(JSON.parse(manager.token));
+        // } catch(err){
             const { tokens } = await oauth2Client.getToken(authorizationCode);
 
             oauth2Client.setCredentials(tokens);
             manager.token = JSON.stringify(tokens);
             manager.save();
-        }
+        //}
 
         await finalUpload(submission, project, oauth2Client);
     } catch (error) {
