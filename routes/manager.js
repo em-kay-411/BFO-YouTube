@@ -124,14 +124,14 @@ router.post('/approveSubmission/:id', verifyManager, async (req, res) => {
         }
 
         const oauth2Client = new OAuth2Client({
-            clientId: '87798573037-1qv6rd5n7jrvrge1v6ci51fa0u8cki6l.apps.googleusercontent.com',
-            clientSecret: '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',
-            redirectUri: 'http://localhost:3000/manager/approveSubmission/callback',
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            redirectUri: process.env.GOOGLE_REDIRECT_URI,
         });
 
         const authUrl = oauth2Client.generateAuthUrl({
             access_type: 'offline',
-            scope: ['https://www.googleapis.com/auth/youtube.upload'],
+            scope: ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube.force-ssl'],
             state : req.params.id
         });
 
@@ -155,9 +155,9 @@ router.get('/approveSubmission/callback', verifyManager, async (req, res) => {
         const manager = await User.findOne( { _id : req.user.id });
 
         const oauth2Client = new OAuth2Client({
-            clientId: '87798573037-1qv6rd5n7jrvrge1v6ci51fa0u8cki6l.apps.googleusercontent.com',
-            clientSecret: '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',
-            redirectUri: 'http://localhost:3000/manager/approveSubmission/callback',
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            redirectUri: process.env.GOOGLE_REDIRECT_URI,
         });
 
         // try{
