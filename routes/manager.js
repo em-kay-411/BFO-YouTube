@@ -109,8 +109,8 @@ router.post('/approveSubmission/:id', verifyManager, async (req, res) => {
     try {
 
         const submission = await Submission.findOne({ _id: req.params.id });
-        if(!submission){
-            return res.status(403).json({message : 'Error! Wrong submission ID.'})
+        if (!submission) {
+            return res.status(403).json({ message: 'Error! Wrong submission ID.' })
         }
 
         const project = await Project.findOne({ _id: submission.project });
@@ -129,22 +129,21 @@ router.post('/approveSubmission/:id', verifyManager, async (req, res) => {
             redirectUri: process.env.GOOGLE_REDIRECT_URI,
         });
 
-        try{
+        try {
             oauth2Client.setCredentials(JSON.parse(manager.token));
-            console.log("here");
             await finalUpload(submission, project, oauth2Client);
-        } catch(err){
+        } catch (err) {
             const authUrl = oauth2Client.generateAuthUrl({
                 access_type: 'offline',
                 scope: ['https://www.googleapis.com/auth/youtube.upload', 'https://www.googleapis.com/auth/youtube.force-ssl'],
-                state : req.params.id
+                state: req.params.id
             });
-    
+
             console.log(authUrl);
-    
+
             res.redirect(authUrl);
         }
-        
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -158,8 +157,8 @@ router.get('/approveSubmission/callback', verifyManager, async (req, res) => {
         const state = req.query.state;
 
         const submission = await Submission.findOne({ _id: state });
-        const project = await Project.findOne({ _id : submission.project });
-        const manager = await User.findOne( { _id : req.user.id });
+        const project = await Project.findOne({ _id: submission.project });
+        const manager = await User.findOne({ _id: req.user.id });
 
         const oauth2Client = new OAuth2Client({
             clientId: process.env.GOOGLE_CLIENT_ID,
@@ -167,15 +166,13 @@ router.get('/approveSubmission/callback', verifyManager, async (req, res) => {
             redirectUri: process.env.GOOGLE_REDIRECT_URI,
         });
 
-        // try{
-        //     oauth2Client.setCredentials(JSON.parse(manager.token));
-        // } catch(err){
-            const { tokens } = await oauth2Client.getToken(authorizationCode);
 
-            oauth2Client.setCredentials(tokens);
-            manager.token = JSON.stringify(tokens);
-            manager.save();
-        //}
+        const { tokens } = await oauth2Client.getToken(authorizationCode);
+
+        oauth2Client.setCredentials(tokens);
+        manager.token = JSON.stringify(tokens);
+        manager.save();
+
 
         await finalUpload(submission, project, oauth2Client);
     } catch (error) {

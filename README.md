@@ -43,7 +43,7 @@ or AWS S3 in this case.
 
 # Route Handlers
 `/createProject` route uses the multer-s3 library to upload files to S3. 
-##### Algorithm -->  
+##### Algorithm 
 1.  The client will submit a form that will consist of project name, deadline, files and editors  
 2.  A new project model entry will be instantiated and project name, deadline, editors and managerid will be assigned  
 3.  This entry is saved into the MongoDB database  
@@ -57,3 +57,17 @@ or AWS S3 in this case.
 
 The same above Algorithm is used for submitting rendered projects for editors. The files have to be passed 
 as form-data
+
+# Google API Info
+Authentication for YouTube (Google) is done using OAuth2.0 authentication. The app being in testing phase is accessible only to permitted users. 
+
+# Video Uploading
+#### Algorithm
+1. `POST` request is hit on `approveSubmission/:id` route handler.
+2. OAuth2.0 authentication will be verified. 
+3. If the token available in the database for the manager is valid, it will authenticate and call the `finalUpload` function.
+4. If the token is not valid, a new token will be generated and the user will be redirected to the authentication URL.
+5. During authentication, the authoraization code is obtained and sent to a callback URL defined in the GOOGLE API configurations for redirect URIs.
+6. The code is sent as query parameter. This code is extracted, and a new token is generated for the manager.
+7. The token is saved to the database for the manager to reuse.
+8. `finalUpload()` function is called.
