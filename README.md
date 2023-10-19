@@ -71,3 +71,10 @@ Authentication for YouTube (Google) is done using OAuth2.0 authentication. The a
 6. The code is sent as query parameter. This code is extracted, and a new token is generated for the manager.
 7. The token is saved to the database for the manager to reuse.
 8. `finalUpload()` function is called.
+
+#### Suggestion
+Uploading of video from S3 to YouTube can be done using containers. Docker containers can be automated to be formed and then s3end data to YouTbe directly.
+Algorithm to be implemented - 
+Whenever the requesst to send video is posted, it will start forming a Docker container.
+It wil pusll the image from the DockerHub that contains all the dependnecies that are required and create a stream with YouTube and run a function to send data to YouTube
+The advantage of this wqill be that it will be scalabale and also it will provide isolation.
