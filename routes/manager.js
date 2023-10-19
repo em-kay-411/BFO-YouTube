@@ -123,6 +123,8 @@ router.post('/approveSubmission/:id', verifyManager, async (req, res) => {
             return res.status(403).json({ message: 'You are not authorised for this action' });
         }
 
+        const manager = await User.findOne({ _id : project.manager});
+
         const oauth2Client = new OAuth2Client({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
